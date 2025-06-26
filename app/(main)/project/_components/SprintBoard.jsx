@@ -160,8 +160,20 @@ const SprintBoard = ({ sprints, projectId, orgId }) => {
     return (
         <div className="relative rounded-2xl backdrop-blur-sm border border-primary/10 overflow-hidden p-6 transition-all duration-300">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
-            <div className="relative z-10">
+
+            {updateIssueOrderStatusLoading && (
+                <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm">
+                    <div className="h-6 w-6 border-2 border-t-transparent border-primary rounded-full animate-spin" />
+                </div>
+            )}
+
+            <div className={cn(
+                "relative z-10 transition-opacity duration-300",
+                updateIssueOrderStatusLoading && "opacity-50 pointer-events-none"
+            )}>
                 <SprintManager sprint={currentSprint} setSprint={setCurrentSprint} sprints={sprints} projectId={projectId} />
+
+                {/*sorting filters*/}
 
                 <DragDropContext onDragEnd={onDragEnd}>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
@@ -171,7 +183,7 @@ const SprintBoard = ({ sprints, projectId, orgId }) => {
                                     <Card
                                         className={cn(
                                             "transition-all duration-200 min-h-[400px] bg-background border shadow-sm",
-                                            snapshot.isDraggingOver && "ring-2 ring-primary/20 shadow-lg scale-[1.02]"
+                                            snapshot.isDraggingOver && "ring-2 ring-primary/20 shadow-lg bg-primary/5"
                                         )}
                                     >
                                         <CardHeader className="pb-3">
