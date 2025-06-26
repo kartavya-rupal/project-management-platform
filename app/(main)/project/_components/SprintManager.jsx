@@ -14,9 +14,12 @@ import React, { useEffect, useState } from "react";
 import useFetch from "@/hooks/use-fetch";
 import { updateSprintStatus, deleteSprint } from "@/actions/sprint";
 import { toast } from "sonner";
+import { useRouter } from 'next/navigation';
 
 const SprintManager = ({ sprint, setSprint, sprints, projectId }) => {
     const [status, setStatus] = useState(sprint.status);
+
+    const router = useRouter();
 
     const {
         loading,
@@ -68,10 +71,10 @@ const SprintManager = ({ sprint, setSprint, sprints, projectId }) => {
     const handleDeleteSprint = async () => {
         try {
             await deleteSprintFn(sprint.id);
-            window.location.reload();
             toast.success("Sprint deleted successfully");
             const remainingSprints = sprints.filter((s) => s.id !== sprint.id);
             setSprint(remainingSprints[0] || null);
+            router.refresh();
         } catch (err) {
             toast.error("Failed to delete sprint");
         }
@@ -98,6 +101,10 @@ const SprintManager = ({ sprint, setSprint, sprints, projectId }) => {
         setSprint(selectedSprint);
         setStatus(selectedSprint.status);
     };
+
+    useEffect(() => {
+        setStatus(sprint.status);
+    }, [sprint.id, sprint.status]);
 
     return (
         <div className="space-y-6">

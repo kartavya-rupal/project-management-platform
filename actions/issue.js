@@ -63,3 +63,19 @@ export async function getIssuesForSprint(sprintId) {
 
     return issues;
 }
+
+export async function updateIssueOrderStatus(updatedIssues) {
+    const { userId, orgId } = await auth();
+    if (!userId || !orgId) throw new Error("Unauthorized");
+
+    await prisma.$transaction(async (tx) => {
+        for (const issue of updatedIssues) {
+            await tx.issue.update({
+                where: { id: issue.id },
+                data: { status: issue.status, order: issue.order },
+            });
+        }
+    });
+
+    return {success : true};
+}
