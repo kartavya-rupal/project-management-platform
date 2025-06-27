@@ -217,7 +217,20 @@ const SprintBoard = ({ sprints, projectId, orgId }) => {
                                                                 {...provided.dragHandleProps}
                                                                 className="mb-3 w-full"
                                                             >
-                                                                <IssueCard issue={issue} />
+                                                                <IssueCard issue={issue}
+                                                                    onDelete={() => fetchIssues(currentSprint.id)}
+                                                                    onUpdate={(updated) => {
+                                                                        let found = false;
+                                                                        setIssues((issues) =>
+                                                                            issues.map((issue) => {
+                                                                                if (issue.id === updated.id) {
+                                                                                    return updated;
+                                                                                }
+                                                                                return issue;
+                                                                            })
+                                                                        );
+                                                                    }}
+                                                                />
                                                             </div>
                                                         )}
                                                     </Draggable>

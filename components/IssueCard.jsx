@@ -5,6 +5,7 @@ import UserAvatar from "./UserAvatar"
 import { formatDistanceToNow } from "date-fns"
 import { useState } from "react"
 import IssueDialog from "./IssueDialog"
+import { useRouter } from "next/navigation"
 
 const priorityColor = {
     LOW: "border-l-green-500",
@@ -23,6 +24,18 @@ const priorityBadgeColor = {
 export default function IssueCard({ issue, showStatus = false, onDelete = () => { }, onUpdate = () => { } }) {
 
     const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+    const router = useRouter()
+
+    const onDeleteHandler = (...params) => {
+        router.refresh();
+        onDelete(...params);
+    };
+
+    const onUpdateHandler = (...params) => {
+        router.refresh();
+        onUpdate(...params);
+    };
 
     return (
         <>
