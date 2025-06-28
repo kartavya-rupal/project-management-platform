@@ -4,10 +4,10 @@ import Link from "next/link"
 import { PlusCircle, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import DeleteProject from "./DeleteProject"
+import EditProject from "./EditProject"
 
 export default async function ProjectList({ orgId }) {
     const projects = await getProjects(orgId)
-    // console.log(orgId)
 
     if (projects.length === 0) {
         return (
@@ -34,7 +34,6 @@ export default async function ProjectList({ orgId }) {
             </div>
         )
     }
-    // console.log(project.id)
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
@@ -49,7 +48,14 @@ export default async function ProjectList({ orgId }) {
                             <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80 group-hover:from-primary group-hover:to-primary/90 transition-all duration-300">
                                 {project.name}
                             </span>
-                            <DeleteProject projectId = {project.id}/>
+                            <div className="flex items-center gap-1">
+                                <EditProject
+                                    projectId={project.id}
+                                    initialName={project.name}
+                                    initialDescription={project.description}
+                                />
+                                <DeleteProject projectId={project.id} />
+                            </div>
                         </CardTitle>
                     </CardHeader>
 

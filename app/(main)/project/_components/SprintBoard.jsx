@@ -14,6 +14,8 @@ import { getIssuesForSprint, updateIssueOrderStatus } from "@/actions/issue"
 import IssueCard from "@/components/IssueCard"
 import { toast } from "sonner"
 import { useMemo } from "react"
+import { issue } from "@uiw/react-md-editor"
+import BoardFilters from "./BoardFilters"
 
 function reorder(list, startIndex, endIndex) {
     const result = Array.from(list);
@@ -46,6 +48,11 @@ const SprintBoard = ({ sprints, projectId, orgId }) => {
     const handleAddIssue = (status) => {
         setSelectedStatus(status)
         setIsDrawerOpen(true)
+    }
+
+    const [filteredIssues, setFilteredIssues] = useState(issues)
+    const handleFilterChange = (newFilteredIssues) => {
+        setFilteredIssues(newFilteredIssues)
     }
 
     const handleIssueCreated = () => {
@@ -173,7 +180,9 @@ const SprintBoard = ({ sprints, projectId, orgId }) => {
             )}>
                 <SprintManager sprint={currentSprint} setSprint={setCurrentSprint} sprints={sprints} projectId={projectId} />
 
-                {/*sorting filters*/}
+                {issues && !issuesLoading && !issuesError && (
+                    <BoardFilters issues={issues} onFilterChange={handleFilterChange} />
+                )}
 
                 <DragDropContext onDragEnd={onDragEnd}>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
@@ -201,7 +210,7 @@ const SprintBoard = ({ sprints, projectId, orgId }) => {
                                             ref={provided.innerRef}
                                             className="min-h-[300px]" // removed space-y-3
                                         >
-                                            {issues
+                                            {filteredIssues
                                                 ?.filter((issue) => issue.status === status.key)
                                                 .map((issue, index) => (
                                                     <Draggable

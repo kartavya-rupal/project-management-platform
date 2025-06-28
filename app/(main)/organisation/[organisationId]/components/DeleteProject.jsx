@@ -103,14 +103,14 @@ const DeleteProject = ({ projectId }) => {
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel className="rounded-full border-primary/30 bg-background/50 text-primary">
+                        <AlertDialogCancel className="rounded-full border-primary/30 bg-background/50 text-primary cursor-pointer">
                             Cancel
                         </AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleDelete}
-                            className="relative overflow-hidden rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors duration-300"
+                            className="relative overflow-hidden rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors duration-300 cursor-pointer"
                         >
-                            <span className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-600 opacity-90"></span>
+                            <span className="absolute inset-0 bg-gradient-to-r hover:shadow-red-400/50 bg-[#DC143C] hover:bg-[#DC143C] text-white opacity-90"></span>
                             <span className="relative">Delete Project</span>
                         </AlertDialogAction>
                     </AlertDialogFooter>

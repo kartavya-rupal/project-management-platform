@@ -134,3 +134,53 @@ export async function getProject(projectId) {
 
     return project;
 }
+
+export async function updateProject(projectId, data) {
+
+    const { userId, orgId, orgRole } = await auth();
+    if (!userId || !orgId) {
+        throw new Error("Unauthorized");
+    }
+
+    if (orgRole !== "org:admin") {
+        throw new Error("Only organisation admins can update projects");
+    }
+
+    const user = await prisma.user.findUnique({
+        where: {
+            clerkUserId: userId,
+        }
+    });
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+    try {
+        const project = await prisma.project.findUnique({
+            where: {
+                id: projectId,
+            }
+        });
+        if (!project) {
+            throw new Error("Project not found");
+        }
+
+        if (project.organizationId !== orgId) {
+            throw new Error("Unauthorized");
+        }
+
+        const updatedProject = await prisma.project.update({
+            where: {
+                id: projectId,
+            },
+            data: {
+                name: data.name,
+                description: data.description,
+            },
+        })
+
+        return updatedProject;
+    } catch (error) {
+        throw new Error(`Error updating project: ${error.message}`);
+    }
+}

@@ -69,8 +69,20 @@ export async function getOrganisationMembers(orgId) {
     const users = await prisma.user.findMany({
         where: {
             clerkUserId: { in: userIds },
-        }
+        },
     });
 
-    return users;
+    return membership.map((member) => {
+        const localUser = users.find((u) => u.clerkUserId === member.publicUserData.userId);
+
+        return {
+            id: localUser?.id || null,
+            clerkUserId: member.publicUserData.userId,
+            name: localUser?.name || member.publicUserData.firstName,
+            email: localUser?.email || member.publicUserData.identifier,
+            imageUrl: localUser?.imageUrl || member.publicUserData.imageUrl,
+            role: member.role, // <-- THIS is now included
+        };
+    });
+      
 }
