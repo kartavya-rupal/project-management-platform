@@ -7,10 +7,14 @@ import { Users, Calendar, Crown, Building2, FolderOpen, CheckCircle } from "luci
 import { formatDistanceToNow } from "date-fns"
 import { auth } from "@clerk/nextjs/server"
 import { getProjects } from "@/actions/project"
+import UserIssues from "./components/UserIssues"
+import { redirect } from "next/navigation"
 
 export default async function Organisation({ params }) {
   const { organisationId } = await params
   const { userId } = await auth()
+
+  if (!userId) redirect("/sign-in")
 
   if (!organisationId) return <div>Organization not found</div>
 
@@ -129,13 +133,20 @@ export default async function Organisation({ params }) {
         </Card>
       </div>
 
-      <div className="m-8 flex flex-col sm:flex-row justify-between items-start">
-        <h1 className="text-5xl font-bold gradient-title pb-2">{organisation.name}&rsquo;s Projects</h1>
-        <OrgSwitcher />
+      <div className="relative rounded-2xl backdrop-blur-sm border border-primary/10 overflow-hidden p-6 transition-all duration-300 m-8">
+
+        <div className="relative z-10">
+          <div className="mb-6 flex flex-col sm:flex-row justify-between items-start">
+            <h1 className="text-4xl font-bold gradient-title pb-2">{organisation.name}&rsquo;s Projects</h1>
+            <OrgSwitcher />
+          </div>
+
+          <ProjectList orgId={organisation.id} />
+        </div>
       </div>
 
       <div className="m-8">
-        <ProjectList orgId={organisation.id} />
+        <UserIssues userId={userId} />
       </div>
     </div>
   )
