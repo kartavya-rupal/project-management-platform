@@ -6,7 +6,7 @@ import NextTopLoader from "nextjs-toploader"
 import { Toaster } from "sonner"
 import { Heart, Github, Linkedin } from "lucide-react"
 import Header from "@/components/Header"
-import { ThemeProvider } from "@/components/ThemeProvider"
+import { ThemeProvider } from "@/components/themeProvider"
 
 const inter = Inter({ subsets: ["latin"] })
 
