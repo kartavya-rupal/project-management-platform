@@ -1,12 +1,12 @@
-import { ThemeProvider } from "@/components/ThemeProvider.jsx"
 import "./globals.css"
 import { Inter } from "next/font/google"
-import Header from "@/components/Header.jsx"
 import { ClerkProvider } from "@clerk/nextjs"
 import { dark } from "@clerk/themes"
 import NextTopLoader from "nextjs-toploader"
 import { Toaster } from "sonner"
 import { Heart, Github, Linkedin } from "lucide-react"
+import { ThemeProvider } from "@/components/ThemeProvider"
+import Header from "@/components/Header"
 
 const inter = Inter({ subsets: ["latin"] })
 
