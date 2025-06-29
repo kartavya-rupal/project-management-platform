@@ -1,4 +1,4 @@
-import { ThemeProvider } from "@/components/themeProvider.jsx"
+import { ThemeProvider } from "@/components/ThemeProvider.jsx"
 import "./globals.css"
 import { Inter } from "next/font/google"
 import Header from "@/components/Header.jsx"
