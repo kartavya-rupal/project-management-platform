@@ -5,8 +5,8 @@ import { dark } from "@clerk/themes"
 import NextTopLoader from "nextjs-toploader"
 import { Toaster } from "sonner"
 import { Heart, Github, Linkedin } from "lucide-react"
-import { ThemeProvider } from "@/components/ThemeProvider"
 import Header from "@/components/Header"
+import { ThemeProvider } from "@/components/ThemeProvider"
 
 const inter = Inter({ subsets: ["latin"] })
 
