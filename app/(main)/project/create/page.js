@@ -41,7 +41,6 @@ const CreateProjectPage = () => {
 
     const {
         loading,
-        error,
         data: project,
         fn: createProjectFn,
     } = useFetch(createProject);

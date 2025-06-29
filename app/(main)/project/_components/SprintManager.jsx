@@ -23,15 +23,12 @@ const SprintManager = ({ sprint, setSprint, sprints, projectId }) => {
 
     const {
         loading,
-        error,
         data: updatedStatus,
         fn: updateSprintStatusFn,
     } = useFetch(updateSprintStatus);
 
     const {
         loading: deleteLoading,
-        error: deleteError,
-        data: deletedSprint,
         fn: deleteSprintFn,
     } = useFetch(deleteSprint);
 

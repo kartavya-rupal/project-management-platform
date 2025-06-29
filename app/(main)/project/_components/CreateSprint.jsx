@@ -55,7 +55,7 @@ const SprintCreationForm = ({ projectTitle, projectId, projectKey, sprints }) =>
         }
     }, [showForm, sprints, setValue])
 
-    const { loading, error, data: sprint, fn: createSprintFn } = useFetch(createSprint)
+    const { loading, fn: createSprintFn } = useFetch(createSprint)
 
     const onSubmit = async (data) => {
         try {

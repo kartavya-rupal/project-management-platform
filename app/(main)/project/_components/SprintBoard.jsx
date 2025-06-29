@@ -14,7 +14,6 @@ import { getIssuesForSprint, updateIssueOrderStatus } from "@/actions/issue"
 import IssueCard from "@/components/IssueCard"
 import { toast } from "sonner"
 import { useMemo } from "react"
-import { issue } from "@uiw/react-md-editor"
 import BoardFilters from "./BoardFilters"
 
 function reorder(list, startIndex, endIndex) {
@@ -80,7 +79,6 @@ const SprintBoard = ({ sprints, projectId, orgId }) => {
 
     const {
         loading: updateIssueOrderStatusLoading,
-        error: updateIssueOrderStatusError,
         fn: updateIssueOrderStatusFn,
     } = useFetch(updateIssueOrderStatus)
 
