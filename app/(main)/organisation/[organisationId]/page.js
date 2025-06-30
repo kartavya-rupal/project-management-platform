@@ -133,7 +133,7 @@ export default async function Organisation({ params }) {
         </Card>
       </div>
 
-      <div className="relative rounded-2xl backdrop-blur-sm border border-primary/10 overflow-hidden p-6 transition-all duration-300 m-8">
+      <div className="relative rounded-2xl backdrop-blur-sm border border-primary/10 overflow-hidden p-6 transition-all duration-300 md:m-8">
 
         <div className="relative z-10">
           <div className="mb-6 flex flex-col sm:flex-row justify-between items-start">
@@ -145,7 +145,7 @@ export default async function Organisation({ params }) {
         </div>
       </div>
 
-      <div className="m-8">
+      <div className="md:m-8 mt-6 mb-6">
         <UserIssues userId={userId} />
       </div>
     </div>

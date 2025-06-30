@@ -28,25 +28,33 @@ export default async function UserIssues({ userId }) {
                             className="flex items-center gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-200"
                         >
                             <UserCheck className="h-4 w-4" />
-                            Assigned to You
+                            {/* Show text only on sm and up */}
+                            <span className="hidden sm:inline">Assigned to You</span>
+
+                            {/* Show count always */}
                             {assignedIssues.length > 0 && (
                                 <span className="ml-1 px-2 py-0.5 text-xs bg-primary/20 text-primary rounded-full">
                                     {assignedIssues.length}
                                 </span>
                             )}
                         </TabsTrigger>
+
                         <TabsTrigger
                             value="reported"
                             className="flex items-center gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-200"
                         >
                             <FileText className="h-4 w-4" />
-                            Reported by You
+                            {/* Text label only visible on sm and up */}
+                            <span className="hidden sm:inline">Reported by You</span>
+
+                            {/* Badge count always visible */}
                             {reportedIssues.length > 0 && (
                                 <span className="ml-1 px-2 py-0.5 text-xs bg-primary/20 text-primary rounded-full">
                                     {reportedIssues.length}
                                 </span>
                             )}
                         </TabsTrigger>
+
                     </TabsList>
 
                     <TabsContent value="assigned" className="mt-6">
