@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import CompanyCarousel from "@/components/CompanyCarousel"
+import FitQuiz from "@/components/FitQuiz"
 
 const faqs = [
   {
@@ -167,6 +168,20 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Quiz Section - Just Above CTA */}
+      <section className="py-20 px-5 relative">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,rgba(var(--primary-rgb),0.08),transparent_60%)]"></div>
+        <div className="container mx-auto text-center mb-10">
+          <h2 className="text-3xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
+            Not sure if Workly fits your team?
+          </h2>
+          <p className="text-primary/80 max-w-xl mx-auto">
+            Take our 2-minute quiz to find out how Workly aligns with your workflow.
+          </p>
+        </div>
+        <FitQuiz />
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 text-center px-5 relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_center,rgba(var(--primary-rgb),0.15),transparent_60%)]"></div>
@@ -199,20 +214,6 @@ export default function Home() {
         </div>
       </section>
 
-      <style jsx>{`
-        @keyframes scroll {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-        
-        .animate-scroll {
-          animation: scroll 30s linear infinite;
-        }
-      `}</style>
     </div>
   )
 }
