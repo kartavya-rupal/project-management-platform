@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { CheckCircle, ArrowRight, ArrowLeft, Users, Target, Clock, Zap, Trophy } from "lucide-react"
+import { CheckCircle, ArrowRight, ArrowLeft, Users, Target, Clock, Zap, Trophy, Loader2 } from "lucide-react"
 
 const questions = [
     {
@@ -69,6 +69,8 @@ const FitQuiz = () => {
     const [answers, setAnswers] = useState({})
     const [showResult, setShowResult] = useState(false)
     const [selectedOption, setSelectedOption] = useState(null)
+    const [loading, setLoading] = useState(false)
+
 
     const handleAnswer = (questionId, option) => {
         setSelectedOption(option.value)
@@ -80,9 +82,14 @@ const FitQuiz = () => {
             setCurrentQuestion(currentQuestion + 1)
             setSelectedOption(answers[questions[currentQuestion + 1].id]?.value || null)
         } else {
-            setShowResult(true)
+            setLoading(true)
+            setTimeout(() => {
+                setLoading(false)
+                setShowResult(true)
+            }, 1500)
         }
     }
+
 
     const handlePrevious = () => {
         if (currentQuestion > 0) {
@@ -131,7 +138,24 @@ const FitQuiz = () => {
         setSelectedOption(null)
     }
 
-    const progress = ((currentQuestion + 1) / questions.length) * 100
+    const progress = ((currentQuestion) / questions.length) * 100
+
+    if (loading) {
+        return (
+            <div className="max-w-2xl mx-auto">
+                <Card className="relative overflow-hidden border border-primary/10 bg-background/60 backdrop-blur-md">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent animate-pulse"></div>
+                    <CardContent className="relative z-10 p-12 flex flex-col items-center justify-center gap-4 text-center">
+                        <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
+                            <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                        </div>
+                        <p className="text-lg text-primary/80 font-medium">Calculating your perfect match...</p>
+                    </CardContent>
+                </Card>
+            </div>
+        )
+    }
+
 
     if (showResult) {
         const score = calculateScore()
@@ -201,8 +225,8 @@ const FitQuiz = () => {
                                 key={option.value}
                                 onClick={() => handleAnswer(question.id, option)}
                                 className={`w-full p-4 text-left rounded-lg border transition-all duration-200 cursor-pointer ${selectedOption === option.value
-                                        ? "border-primary bg-primary/10 text-primary"
-                                        : "border-primary/20 bg-background/50 hover:border-primary/40 hover:bg-primary/5"
+                                    ? "border-primary bg-primary/10 text-primary"
+                                    : "border-primary/20 bg-background/50 hover:border-primary/40 hover:bg-primary/5"
                                     }`}
                             >
                                 <div className="flex items-center justify-between">
