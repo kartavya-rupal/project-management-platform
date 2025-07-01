@@ -111,7 +111,7 @@ const SprintCreationForm = ({ projectTitle, projectId, projectKey, sprints }) =>
                 <Card className="relative backdrop-blur-sm rounded-2xl border border-primary/10 overflow-hidden mb-8">
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
                     <CardContent className="relative z-10 pt-6">
-                        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col md:flex-row gap-6 items-end">
+                        <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:flex md:flex-row gap-6 items-end">
                             <div className="flex-1 space-y-2">
                                 <label htmlFor="name" className="text-sm font-medium text-primary/80">
                                     Sprint Name
