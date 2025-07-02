@@ -30,7 +30,7 @@ const DraggableCard = ({ provided, snapshot, children }) => {
             ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
-            className="w-full"
+            className="w-full touch-none"
         >
             {children}
         </div>
