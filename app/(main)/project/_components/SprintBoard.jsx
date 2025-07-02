@@ -15,18 +15,31 @@ import IssueCard from "@/components/IssueCard"
 import { toast } from "sonner"
 import { useMemo } from "react"
 import BoardFilters from "./BoardFilters"
+import { createPortal } from "react-dom"
 
 function reorder(list, startIndex, endIndex) {
     const result = Array.from(list);
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
-
     return result;
 }
 
+const DraggableCard = ({ provided, snapshot, children }) => {
+    const child = (
+        <div
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            className="w-full"
+        >
+            {children}
+        </div>
+    );
+    return snapshot.isDragging ? createPortal(child, document.body) : child;
+};
+
 const SprintBoard = ({ sprints, projectId, orgId }) => {
     const [currentSprint, setCurrentSprint] = useState(sprints.find((spr) => spr.status === "ACTIVE") || sprints[0])
-
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
     const [selectedStatus, setSelectedStatus] = useState(null)
 
@@ -59,13 +72,7 @@ const SprintBoard = ({ sprints, projectId, orgId }) => {
     }
 
     const statusCounts = useMemo(() => {
-        const counts = {
-            TODO: 0,
-            IN_PROGRESS: 0,
-            IN_REVIEW: 0,
-            DONE: 0
-        };
-
+        const counts = { TODO: 0, IN_PROGRESS: 0, IN_REVIEW: 0, DONE: 0 };
         if (issues) {
             for (const issue of issues) {
                 if (counts[issue.status] !== undefined) {
@@ -73,7 +80,6 @@ const SprintBoard = ({ sprints, projectId, orgId }) => {
                 }
             }
         }
-
         return counts;
     }, [issues]);
 
@@ -83,70 +89,31 @@ const SprintBoard = ({ sprints, projectId, orgId }) => {
     } = useFetch(updateIssueOrderStatus)
 
     const onDragEnd = async (result) => {
-        if (currentSprint.status === "PLANNED") {
-            toast.warning("Start the sprint to update the board")
-            return
-        }
-        if (currentSprint.status === "COMPLETED") {
-            toast.warning("Sprint is already completed")
-            return
-        }
+        if (currentSprint.status === "PLANNED") return toast.warning("Start the sprint to update the board")
+        if (currentSprint.status === "COMPLETED") return toast.warning("Sprint is already completed")
 
         const { source, destination } = result;
-
-        if (!destination) {
-            return;
-        }
-
-        if (
-            source.droppableId === destination.droppableId &&
-            source.index === destination.index
-        ) {
-            return;
-        }
+        if (!destination || (source.droppableId === destination.droppableId && source.index === destination.index)) return;
 
         const newOrderedData = [...issues];
-
-        const sourceList = newOrderedData.filter(
-            (list) => list.status === source.droppableId
-        );
-
-        const destinationList = newOrderedData.filter(
-            (list) => list.status === destination.droppableId
-        );
+        const sourceList = newOrderedData.filter((i) => i.status === source.droppableId);
+        const destinationList = newOrderedData.filter((i) => i.status === destination.droppableId);
 
         if (source.droppableId === destination.droppableId) {
-            const reorderedCards = reorder(
-                sourceList,
-                source.index,
-                destination.index
-            );
-
-            reorderedCards.forEach((card, i) => {
-                card.order = i;
-            });
+            const reordered = reorder(sourceList, source.index, destination.index);
+            reordered.forEach((card, i) => card.order = i);
         } else {
-            const [movedCard] = sourceList.splice(source.index, 1);
-
-            movedCard.status = destination.droppableId;
-
-            destinationList.splice(destination.index, 0, movedCard);
-
-            sourceList.forEach((card, i) => {
-                card.order = i;
-            });
-
-            destinationList.forEach((card, i) => {
-                card.order = i;
-            });
+            const [moved] = sourceList.splice(source.index, 1);
+            moved.status = destination.droppableId;
+            destinationList.splice(destination.index, 0, moved);
+            [...sourceList, ...destinationList].forEach((card, i) => card.order = i);
         }
 
-        const sortedIssues = newOrderedData.sort((a, b) => a.order - b.order);
-        setIssues(newOrderedData, sortedIssues);
-
+        const sorted = newOrderedData.sort((a, b) => a.order - b.order);
+        setIssues(newOrderedData, sorted);
         try {
-            await updateIssueOrderStatusFn(sortedIssues);
-        } catch (err) {
+            await updateIssueOrderStatusFn(sorted);
+        } catch {
             toast.error("Failed to update issue order. Please try again.");
             fetchIssues(currentSprint.id);
         }
@@ -163,7 +130,7 @@ const SprintBoard = ({ sprints, projectId, orgId }) => {
     }
 
     return (
-        <div className="relative rounded-2xl backdrop-blur-sm border border-primary/10 overflow-hidden p-6 transition-all duration-300">
+        <div className="relative rounded-2xl backdrop-blur-sm border border-primary/10 p-6 transition-all duration-300">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
 
             {updateIssueOrderStatusLoading && (
@@ -172,15 +139,9 @@ const SprintBoard = ({ sprints, projectId, orgId }) => {
                 </div>
             )}
 
-            <div className={cn(
-                "relative z-10 transition-opacity duration-300",
-                updateIssueOrderStatusLoading && "opacity-50 pointer-events-none"
-            )}>
+            <div className={cn("relative z-10 transition-opacity duration-300", updateIssueOrderStatusLoading && "opacity-50 pointer-events-none")}>
                 <SprintManager sprint={currentSprint} setSprint={setCurrentSprint} sprints={sprints} projectId={projectId} />
-
-                {issues && !issuesLoading && !issuesError && (
-                    <BoardFilters issues={issues} onFilterChange={handleFilterChange} />
-                )}
+                {issues && !issuesLoading && !issuesError && <BoardFilters issues={issues} onFilterChange={handleFilterChange} />}
 
                 <DragDropContext onDragEnd={onDragEnd}>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
@@ -188,26 +149,21 @@ const SprintBoard = ({ sprints, projectId, orgId }) => {
                             <Droppable key={status.key} droppableId={status.key}>
                                 {(provided, snapshot) => (
                                     <Card
+                                        ref={provided.innerRef}
+                                        {...provided.droppableProps}
                                         className={cn(
-                                            "transition-all duration-200 min-h-[400px] bg-background border shadow-sm",
+                                            "min-h-[400px] bg-background border shadow-sm transition-colors duration-200",
                                             snapshot.isDraggingOver && "ring-2 ring-primary/20 shadow-lg bg-primary/5"
                                         )}
                                     >
                                         <CardHeader className="pb-3">
                                             <CardTitle
-                                                className={cn(
-                                                    "text-sm font-medium px-3 py-1.5 rounded-full text-center transition-colors",
-                                                    getStatusHeaderColor(status.key)
-                                                )}
+                                                className={cn("text-sm font-medium px-3 py-1.5 rounded-full text-center transition-colors", getStatusHeaderColor(status.key))}
                                             >
                                                 {status.name}
                                             </CardTitle>
                                         </CardHeader>
-                                        <CardContent
-                                            {...provided.droppableProps}
-                                            ref={provided.innerRef}
-                                            className="min-h-[300px]" // removed space-y-3
-                                        >
+                                        <CardContent className="min-h-[300px] space-y-3">
                                             {filteredIssues
                                                 ?.filter((issue) => issue.status === status.key)
                                                 .map((issue, index) => (
@@ -217,50 +173,35 @@ const SprintBoard = ({ sprints, projectId, orgId }) => {
                                                         index={index}
                                                         isDragDisabled={updateIssueOrderStatusLoading}
                                                     >
-                                                        {(provided) => (
-                                                            <div
-                                                                ref={provided.innerRef}
-                                                                {...provided.draggableProps}
-                                                                {...provided.dragHandleProps}
-                                                                className="mb-3 w-full"
-                                                            >
-                                                                <IssueCard issue={issue}
+                                                        {(provided, snapshot) => (
+                                                            <DraggableCard provided={provided} snapshot={snapshot}>
+                                                                <IssueCard
+                                                                    issue={issue}
                                                                     onDelete={() => fetchIssues(currentSprint.id)}
-                                                                    onUpdate={(updated) => {
-                                                                        let found = false;
+                                                                    onUpdate={(updated) =>
                                                                         setIssues((issues) =>
-                                                                            issues.map((issue) => {
-                                                                                if (issue.id === updated.id) {
-                                                                                    return updated;
-                                                                                }
-                                                                                return issue;
-                                                                            })
-                                                                        );
-                                                                    }}
+                                                                            issues.map((i) => (i.id === updated.id ? updated : i))
+                                                                        )
+                                                                    }
                                                                 />
-                                                            </div>
+                                                            </DraggableCard>
                                                         )}
                                                     </Draggable>
                                                 ))}
-
-                                            {issues?.filter((issue) => issue.status === status.key).length === 0 && (
-                                                <div className="space-y-2">
-                                                    <div className="text-xs text-muted-foreground text-center py-8 border-2 border-dashed border-muted-foreground/20 rounded-lg bg-muted/20">
-                                                        {status.key === "TODO" && "No issues yet"}
-                                                        {status.key === "IN_PROGRESS" && "No issues in progress"}
-                                                        {status.key === "IN_REVIEW" && "No issues in review"}
-                                                        {status.key === "DONE" && "No completed issues"}
-                                                    </div>
+                                            {provided.placeholder}
+                                            {filteredIssues?.filter((i) => i.status === status.key).length === 0 && (
+                                                <div className="text-xs text-muted-foreground text-center py-8 border-2 border-dashed border-muted-foreground/20 rounded-lg bg-muted/20">
+                                                    {status.key === "TODO" && "No issues yet"}
+                                                    {status.key === "IN_PROGRESS" && "No issues in progress"}
+                                                    {status.key === "IN_REVIEW" && "No issues in review"}
+                                                    {status.key === "DONE" && "No completed issues"}
                                                 </div>
                                             )}
-
-                                            {provided.placeholder}
-
                                             {status.key === "TODO" && currentSprint.status !== "COMPLETED" && (
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    className="w-full border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 hover:bg-primary/5 transition-all duration-200 mt-4 cursor-pointer"
+                                                    className="w-full border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 hover:bg-primary/5 transition-all duration-200 cursor-pointer"
                                                     onClick={() => handleAddIssue(status.key)}
                                                 >
                                                     <Plus className="mr-2 h-4 w-4" />
