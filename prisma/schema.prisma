@@ -8,63 +8,83 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  clerkUserId   String    @unique
-  email         String    @unique
-  name          String?
-  imageUrl      String?
-  createdIssues Issue[]   @relation("Reporter")
-  assignedIssues Issue[]  @relation("Assignee")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id             String        @id @default(cuid())
+  clerkUserId    String        @unique
+  email          String        @unique
+  name           String?
+  imageUrl       String?
+  createdIssues  Issue[]       @relation("Reporter")
+  assignedIssues Issue[]       @relation("Assignee")
+  activityLogs   ActivityLog[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 }
 
 model Project {
-  id             String   @id @default(cuid())
+  id             String        @id @default(cuid())
   name           String
   key            String
   description    String?
-  organizationId String    // This will store the Clerk organization ID
+  organizationId String // This will store the Clerk organization ID
   sprints        Sprint[]
   issues         Issue[]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  activityLogs   ActivityLog[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@unique([organizationId, key])
 }
 
 model Sprint {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  startDate DateTime
-  endDate   DateTime
-  status    SprintStatus @default(PLANNED)
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId String
-  issues    Issue[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String        @id @default(cuid())
+  name         String        @unique
+  startDate    DateTime
+  endDate      DateTime
+  status       SprintStatus  @default(PLANNED)
+  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId    String
+  issues       Issue[]
+  activityLogs ActivityLog[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 model Issue {
-  id          String     @id @default(cuid())
-  title       String
-  description String?
-  status      IssueStatus
-  order       Int        // This will store the order within its status column
-  priority    IssuePriority
-  assignee    User?      @relation("Assignee", fields: [assigneeId], references: [id])
-  assigneeId  String?
-  reporter    User       @relation("Reporter", fields: [reporterId], references: [id])
-  reporterId  String
-  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId   String
-  sprint      Sprint?    @relation(fields: [sprintId], references: [id], onDelete: SetNull)
-  sprintId    String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id           String        @id @default(cuid())
+  title        String
+  description  String?
+  status       IssueStatus
+  order        Int // This will store the order within its status column
+  priority     IssuePriority
+  assignee     User?         @relation("Assignee", fields: [assigneeId], references: [id])
+  assigneeId   String?
+  reporter     User          @relation("Reporter", fields: [reporterId], references: [id])
+  reporterId   String
+  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId    String
+  sprint       Sprint?       @relation(fields: [sprintId], references: [id], onDelete: SetNull)
+  sprintId     String?
+  activityLogs ActivityLog[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   @@index([status, order])
+}
+
+model ActivityLog {
+  id        String       @id @default(cuid())
+  message   String
+  type      ActivityType
+  user      User?        @relation(fields: [userId], references: [id])
+  userId    String?
+  issue     Issue?       @relation(fields: [issueId], references: [id])
+  issueId   String?
+  project   Project?     @relation(fields: [projectId], references: [id])
+  projectId String?
+  sprint    Sprint?      @relation(fields: [sprintId], references: [id])
+  sprintId  String?
+
+  createdAt DateTime @default(now())
 }
 
 enum SprintStatus {
@@ -85,4 +105,14 @@ enum IssuePriority {
   MEDIUM
   HIGH
   URGENT
+}
+
+enum ActivityType {
+  CREATED
+  UPDATED
+  DELETED
+  MOVED
+  COMMENTED
+  STATUS_CHANGED
+  PRIORITY_CHANGED
 }
