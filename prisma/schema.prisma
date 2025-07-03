@@ -83,7 +83,6 @@ model ActivityLog {
   projectId String?
   sprint    Sprint?      @relation(fields: [sprintId], references: [id])
   sprintId  String?
-
   createdAt DateTime @default(now())
 }
 

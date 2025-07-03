@@ -119,3 +119,33 @@ export async function getUserIssues(userId) {
 
     return issues;
 }
+
+export async function getActivityLogs(orgId) {
+    const { userId } = await auth();
+    if (!userId || !orgId) {
+        throw new Error("Unauthorized");
+    }
+
+    try {
+        const activityLogs = await prisma.activityLog.findMany({
+            where: {
+                project: {
+                    organizationId: orgId,
+                },
+            },
+            include: {
+                user: true,
+                issue: true,
+                project: true,
+                sprint: true,
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+        });
+
+        return activityLogs;
+    } catch (error) {
+        throw new Error(`Error fetching activity logs: ${error.message}`);
+    }
+}

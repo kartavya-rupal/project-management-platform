@@ -9,6 +9,7 @@ import { auth } from "@clerk/nextjs/server"
 import { getProjects } from "@/actions/project"
 import UserIssues from "./components/UserIssues"
 import { redirect } from "next/navigation"
+import ActivityLog from "./components/ActivityLog"
 
 export default async function Organisation({ params }) {
   const { organisationId } = await params
@@ -19,6 +20,7 @@ export default async function Organisation({ params }) {
   if (!organisationId) return <div>Organization not found</div>
 
   const organisation = await getOrganization(organisationId)
+
   if (!organisation) {
     return <div> Organization not found</div>
   }
@@ -35,10 +37,13 @@ export default async function Organisation({ params }) {
       <div className="mb-6">
         <Card className="relative overflow-hidden border border-primary/10 bg-background/60 backdrop-blur-md">
           <CardHeader className="relative z-10 border-b border-primary/10">
-            <CardTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5 text-primary" />
-              Organization Overview
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-5 w-5 text-primary" />
+                Organization Overview
+              </CardTitle>
+              <ActivityLog />
+            </div>
           </CardHeader>
 
           <CardContent className="relative z-10 pt-4">
@@ -134,7 +139,6 @@ export default async function Organisation({ params }) {
       </div>
 
       <div className="relative rounded-2xl backdrop-blur-sm border border-primary/10 overflow-hidden p-6 transition-all duration-300 md:m-8">
-
         <div className="relative z-10">
           <div className="mb-6 flex flex-col sm:flex-row justify-between items-start">
             <h1 className="text-4xl font-bold gradient-title pb-2">{organisation.name}&rsquo;s Projects</h1>
