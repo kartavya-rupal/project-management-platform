@@ -39,7 +39,7 @@ export default async function ProjectList({ orgId }) {
             {projects.map((project) => (
                 <Card
                     key={project.id}
-                    className="group relative overflow-hidden border border-primary/10 bg-background/60 backdrop-blur-md transition-all duration-300 hover:shadow-md hover:shadow-primary/10 hover:-translate-y-1"
+                    className="group relative overflow-hidden border border-primary/10 bg-background/60 backdrop-blur-md transition-all duration-300 hover:shadow-md hover:shadow-primary/10 hover:-translate-y-1 flex flex-col justify-between"
                 >
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
@@ -59,8 +59,8 @@ export default async function ProjectList({ orgId }) {
                         </CardTitle>
                     </CardHeader>
 
-                    <CardContent className="relative z-10 pt-4">
-                        <p className="text-sm text-primary/70 mb-6 line-clamp-3">{project.description}</p>
+                    <CardContent className="relative z-10 pt-4 flex flex-col justify-between flex-1">
+                        <p className="text-sm text-primary/70 mb-10 line-clamp-3">{project.description}</p>
 
                         <Link href={`/project/${project.id}`}>
                             <Button
