@@ -96,7 +96,7 @@ const ActivityLog = () => {
             </Button>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-4xl w-full max-h-[80vh] p-0 flex flex-col border border-primary/10 bg-background/95 backdrop-blur-md">
+                <DialogContent className="max-w-4xl  w-full max-h-[80vh] p-0 flex flex-col border border-primary/10 bg-background/95 backdrop-blur-md">
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none rounded-lg"></div>
 
                     <DialogHeader className="relative z-10 border-b border-primary/10 p-6 pb-4">
