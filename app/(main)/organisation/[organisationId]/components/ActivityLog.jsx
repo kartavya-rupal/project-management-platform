@@ -80,49 +80,33 @@ const ActivityLog = () => {
 
     useEffect(() => {
         if (isDialogOpen && organization?.id) {
-            fetchLogs(organization?.id)
-            console.log(organization?.id)
+            fetchLogs(organization.id)
         }
     }, [isDialogOpen, organization?.id])
-
-    const handleOpenDialog = () => {
-        setIsDialogOpen(true)
-    }
-
-    console.log(logs);
 
     return (
         <>
             <Button
-                onClick={handleOpenDialog}
+                onClick={() => setIsDialogOpen(true)}
                 variant="ghost"
                 size="sm"
                 className="relative cursor-pointer rounded-full h-8 w-8 p-0 hover:bg-primary/10 transition-all duration-200"
             >
                 <Activity className="h-4 w-4 text-primary" />
-                {logs && logs.length > 0 && (
-                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-primary rounded-full flex items-center justify-center">
-                        <span className="text-[10px] text-primary-foreground font-medium">
-                            {logs.length > 9 ? "9+" : logs.length}
-                        </span>
-                    </span>
-                )}
             </Button>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-4xl max-h-[80vh] p-0 border border-primary/10 bg-background/95 backdrop-blur-md">
+                <DialogContent className="max-w-4xl w-full max-h-[80vh] p-0 flex flex-col border border-primary/10 bg-background/95 backdrop-blur-md">
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none rounded-lg"></div>
 
                     <DialogHeader className="relative z-10 border-b border-primary/10 p-6 pb-4">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-full bg-primary/10">
-                                    <Activity className="h-5 w-5 text-primary" />
-                                </div>
-                                <div>
-                                    <DialogTitle className="text-xl font-semibold">Activity Logs for {organization?.name}</DialogTitle>
-                                    <p className="text-sm text-muted-foreground mt-1">Recent organization activity and changes</p>
-                                </div>
+                            <div className="p-2 rounded-full bg-primary/10">
+                                <Activity className="h-5 w-5 text-primary" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-xl font-semibold">Activity Logs for {organization?.name}</DialogTitle>
+                                <p className="text-sm text-muted-foreground mt-1">Recent organization activity and changes</p>
                             </div>
                             <Button
                                 variant="ghost"
@@ -135,7 +119,7 @@ const ActivityLog = () => {
                         </div>
                     </DialogHeader>
 
-                    <div className="relative z-10 flex-1 overflow-hidden">
+                    <div className="flex-1 overflow-y-auto">
                         {loading ? (
                             <div className="flex items-center justify-center py-12">
                                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -148,9 +132,7 @@ const ActivityLog = () => {
                                 </div>
                                 <h3 className="text-lg font-medium text-red-600 mb-2">Failed to load activity logs</h3>
                                 <p className="text-sm text-muted-foreground text-center mb-4">{error.message}</p>
-                                <Button onClick={() => fetchLogs(organization?.id)} size="sm" className="cursor-pointer">
-                                    Try Again
-                                </Button>
+                                <Button onClick={() => fetchLogs(organization?.id)} size="sm">Try Again</Button>
                             </div>
                         ) : !logs || logs.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-12 px-6">
@@ -158,33 +140,28 @@ const ActivityLog = () => {
                                     <Activity className="h-6 w-6 text-primary/70" />
                                 </div>
                                 <h3 className="text-lg font-medium text-muted-foreground mb-2">No activity yet</h3>
-                                <p className="text-sm text-muted-foreground text-center">
-                                    Activity logs will appear here as your team works on projects
-                                </p>
+                                <p className="text-sm text-muted-foreground text-center">Activity logs will appear here as your team works on projects</p>
                             </div>
                         ) : (
-                            <ScrollArea className="h-[500px]">
+                            <ScrollArea className="h-full">
                                 <div className="p-6 space-y-4">
                                     {logs.map((log) => {
                                         const ActivityIcon = getActivityIcon(log.type)
                                         const colors = getActivityColor(log.type)
-                                        const ContextIcon = getContextIcon(log)
 
                                         return (
                                             <div
                                                 key={log.id}
                                                 className="flex items-start gap-4 p-4 rounded-lg border border-primary/10 bg-background/50 hover:bg-primary/5 transition-all duration-200"
                                             >
-                                                {/* Activity Icon */}
                                                 <div className={`p-2 rounded-full ${colors.bg} flex-shrink-0`}>
                                                     <ActivityIcon className={`h-4 w-4 ${colors.icon}`} />
                                                 </div>
 
-                                                {/* Content */}
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-start justify-between gap-4 mb-2">
                                                         <div className="flex-1">
-                                                            <div className="flex items-center gap-2 mb-1">
+                                                            <div className="flex items-center gap-2 mb-2">
                                                                 <Badge
                                                                     variant="outline"
                                                                     className={`text-xs ${colors.border} ${colors.bg} ${colors.icon}`}
@@ -199,26 +176,22 @@ const ActivityLog = () => {
 
                                                             <p className="text-sm text-foreground leading-relaxed mb-2">{log.message}</p>
 
-                                                            {/* Context Information */}
-                                                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                                            <div className="flex gap-4 text-xs text-muted-foreground">
                                                                 {(log.issue || log.project || log.sprint) && (
-                                                                    <div className="flex items-center gap-1">
-                                                                        <ContextIcon className="h-3 w-3" />
-                                                                        <span>
-                                                                            {log.issue && `Issue: ${log.issue.title}`}
-                                                                            {log.project && `Project: ${log.project.name}`}
-                                                                            {log.sprint && `Sprint: ${log.sprint.name}`}
-                                                                        </span>
+                                                                    <div className="gap-1">
+                                                                        {log.issue && `Issue: ${log.issue.title}`}
+                                                                        <br />
+                                                                        {log.project && `Project: ${log.project.name}`}
+                                                                        <br />
+                                                                        {log.sprint && `Sprint: ${log.sprint.name}`}
                                                                     </div>
                                                                 )}
                                                             </div>
                                                         </div>
 
-                                                        {/* User Avatar */}
                                                         {log.user && (
                                                             <div className="flex items-center gap-2 flex-shrink-0">
                                                                 <UserAvatar user={log.user} size="sm" />
-                                                                <span className="text-xs text-muted-foreground hidden sm:block">{log.user.name}</span>
                                                             </div>
                                                         )}
                                                     </div>
@@ -230,18 +203,6 @@ const ActivityLog = () => {
                             </ScrollArea>
                         )}
                     </div>
-
-                    {/* Footer */}
-                    {logs && logs.length > 0 && (
-                        <div className="relative z-10 border-t border-primary/10 p-4">
-                            <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                <span>Showing {logs.length} recent activities</span>
-                                <Button variant="ghost" size="sm" className="text-xs text-primary hover:bg-primary/10 cursor-pointer">
-                                    Export Logs
-                                </Button>
-                            </div>
-                        </div>
-                    )}
                 </DialogContent>
             </Dialog>
         </>
