@@ -18,6 +18,11 @@ model User {
   activityLogs   ActivityLog[]
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+
+  orgPosts     OrgPost[]
+  postComments PostComment[]
+  postVotes    PostVote[]
+  commentVotes CommentVote[]
 }
 
 model Project {
@@ -25,12 +30,14 @@ model Project {
   name           String
   key            String
   description    String?
-  organizationId String // This will store the Clerk organization ID
+  organizationId String
   sprints        Sprint[]
   issues         Issue[]
   activityLogs   ActivityLog[]
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+
+  orgPosts OrgPost[]
 
   @@unique([organizationId, key])
 }
@@ -54,7 +61,7 @@ model Issue {
   title        String
   description  String?
   status       IssueStatus
-  order        Int // This will store the order within its status column
+  order        Int
   priority     IssuePriority
   assignee     User?         @relation("Assignee", fields: [assigneeId], references: [id])
   assigneeId   String?
@@ -83,7 +90,61 @@ model ActivityLog {
   projectId String?
   sprint    Sprint?      @relation(fields: [sprintId], references: [id])
   sprintId  String?
+  createdAt DateTime     @default(now())
+}
+
+model OrgPost {
+  id        String        @id @default(cuid())
+  title     String
+  content   String
+  image     String? // optional image URL
+  link      String? // optional link URL
+  project   Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  comments  PostComment[]
+  votes     PostVote[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model PostComment {
+  id        String        @id @default(cuid())
+  content   String
+  author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  post      OrgPost       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  parent    PostComment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  parentId  String?
+  children  PostComment[] @relation("CommentReplies")
+  votes     CommentVote[]
+  createdAt DateTime      @default(now())
+}
+
+model PostVote {
+  id        String   @id @default(cuid())
+  post      OrgPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  value     Int // 1 for upvote, -1 for downvote
   createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+}
+
+model CommentVote {
+  id        String      @id @default(cuid())
+  comment   PostComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  value     Int // 1 for upvote, -1 for downvote
+  createdAt DateTime    @default(now())
+
+  @@unique([commentId, userId])
 }
 
 enum SprintStatus {
