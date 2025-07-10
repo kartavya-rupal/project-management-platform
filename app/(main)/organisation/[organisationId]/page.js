@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button"
 import { getOrganisationMembers, getOrganization } from "@/actions/organization.js"
 import OrgSwitcher from "@/components/Org-switcher"
 import ProjectList from "./components/ProjectList"
@@ -9,6 +10,8 @@ import { auth } from "@clerk/nextjs/server"
 import { getProjects } from "@/actions/project"
 import UserIssues from "./components/UserIssues"
 import { redirect } from "next/navigation"
+import { MessageSquare, Lightbulb, Heart, ExternalLink } from "lucide-react"
+import Link from "next/link"
 import ActivityLog from "./components/ActivityLog"
 
 export default async function Organisation({ params }) {
@@ -151,6 +154,70 @@ export default async function Organisation({ params }) {
 
       <div className="md:m-8 mt-6 mb-6">
         <UserIssues userId={userId} />
+      </div>
+
+      {/* Community Section */}
+      <div className="relative rounded-2xl backdrop-blur-sm border border-primary/10 overflow-hidden p-6 transition-all duration-300 md:m-8 mt-6 mb-6">
+
+        <div className="relative z-10">
+          <div className="text-center max-w-3xl mx-auto">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6">
+              <MessageSquare className="h-8 w-8 text-primary" />
+            </div>
+
+            <h2 className="text-3xl font-bold gradient-title mb-4">Join Our Community</h2>
+
+            <p className="text-lg text-primary/80 mb-6 leading-relaxed">
+              Connect with your team beyond work. Share ideas, celebrate wins, ask questions, and build stronger
+              relationships in our dedicated community space.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="flex flex-col items-center p-4 rounded-lg bg-background/50 border border-primary/10">
+                <div className="p-3 rounded-full bg-blue-500/10 mb-3">
+                  <Users className="h-6 w-6 text-blue-600" />
+                </div>
+                <h3 className="font-semibold text-sm mb-2">Team Discussions</h3>
+                <p className="text-xs text-muted-foreground text-center">
+                  Start conversations, share updates, and collaborate with your teammates
+                </p>
+              </div>
+
+              <div className="flex flex-col items-center p-4 rounded-lg bg-background/50 border border-primary/10">
+                <div className="p-3 rounded-full bg-green-500/10 mb-3">
+                  <Lightbulb className="h-6 w-6 text-green-600" />
+                </div>
+                <h3 className="font-semibold text-sm mb-2">Share Ideas</h3>
+                <p className="text-xs text-muted-foreground text-center">
+                  Post suggestions, feedback, and innovative solutions for everyone
+                </p>
+              </div>
+
+              <div className="flex flex-col items-center p-4 rounded-lg bg-background/50 border border-primary/10">
+                <div className="p-3 rounded-full bg-purple-500/10 mb-3">
+                  <Heart className="h-6 w-6 text-purple-600" />
+                </div>
+                <h3 className="font-semibold text-sm mb-2">Celebrate Together</h3>
+                <p className="text-xs text-muted-foreground text-center">
+                  Share achievements, milestones, and recognize great work
+                </p>
+              </div>
+            </div>
+
+            <Link href={`/organisation/${organisationId}/posts`}>
+              <Button
+                size="lg"
+                className="relative cursor-pointer overflow-hidden rounded-full px-8 py-3 shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20 group"
+              >
+                <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary/80 opacity-90"></span>
+                <span className="relative flex items-center gap-2 text-primary-foreground">
+                  Explore Community
+                  <ExternalLink className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </span>
+              </Button>
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   )
