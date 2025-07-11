@@ -3,14 +3,11 @@
 import prisma from "@/lib/prisma"
 import { auth } from "@clerk/nextjs/server"
 
-export async function createPost(data, orgId) {
-    const { userId, orgId: currentOrgId } = await auth()
+// ✅ Create Post (now projectId removed)
+export async function createPost(data) {
+    const { userId, orgId } = await auth()
 
     if (!userId || !orgId) throw new Error("Unauthorized")
-
-    if (orgId !== currentOrgId) {
-        throw new Error("Invalid organization access")
-    }
 
     const user = await prisma.user.findUnique({
         where: { clerkUserId: userId },
@@ -18,7 +15,7 @@ export async function createPost(data, orgId) {
 
     if (!user) throw new Error("User not found")
 
-    if (!data.title || !data.content || !data.projectId) {
+    if (!data.title || !data.content) {
         throw new Error("Missing required fields")
     }
 
@@ -29,8 +26,8 @@ export async function createPost(data, orgId) {
                 content: data.content,
                 image: data.image || null,
                 link: data.link || null,
-                projectId: data.projectId,
                 authorId: user.id,
+                orgId: orgId, // ✅ store org context
             },
         })
 
@@ -39,60 +36,54 @@ export async function createPost(data, orgId) {
         throw new Error("Error creating post: " + error.message)
     }
 }
+
+// ✅ Get Posts for current org
 export async function getPosts(orgId) {
-    const { userId, orgId: currentOrgId } = await auth();
+    const { userId, orgId: currentOrgId } = await auth()
 
-    if (!userId || !orgId) throw new Error("Unauthorized");
-
-    if (orgId !== currentOrgId) {
-        throw new Error("Invalid organization access");
-    }
+    if (!userId || !currentOrgId) throw new Error("Unauthorized")
+    if (orgId !== currentOrgId) throw new Error("Invalid organization access")
 
     const user = await prisma.user.findUnique({
         where: { clerkUserId: userId },
-    });
+    })
 
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error("User not found")
 
     try {
         const posts = await prisma.orgPost.findMany({
-            where: {
-                project: {
-                    organizationId: orgId,
-                },
-            },
+            where: { orgId: currentOrgId },
             orderBy: { createdAt: "desc" },
             include: {
                 author: true,
-                project: true,
                 comments: true,
                 votes: true,
             },
-        });
+        })
 
-        return posts;
+        return posts
     } catch (error) {
-        throw new Error("Error getting posts: " + error.message);
+        throw new Error("Error getting posts: " + error.message)
     }
 }
 
+// ✅ Edit Post
 export async function editPost(postId, updatedData) {
-    const { userId, orgId: currentOrgId } = await auth();
-    if (!userId || !currentOrgId) throw new Error("Unauthorized");
+    const { userId, orgId: currentOrgId } = await auth()
+    if (!userId || !currentOrgId) throw new Error("Unauthorized")
 
     const existingPost = await prisma.orgPost.findUnique({
         where: { id: postId },
-        include: { project: true },
-    });
+    })
 
-    if (!existingPost) throw new Error("Post not found");
+    if (!existingPost) throw new Error("Post not found")
 
-    if (existingPost.project.organizationId !== currentOrgId) {
-        throw new Error("Unauthorized organization access");
+    if (existingPost.orgId !== currentOrgId) {
+        throw new Error("Unauthorized organization access")
     }
 
-    if (existingPost.authorId !== userId) {
-        throw new Error("Only the author can edit this post");
+    if (existingPost.authorId !== user.id) {
+        throw new Error("Only the author can edit this post")
     }
 
     try {
@@ -105,40 +96,40 @@ export async function editPost(postId, updatedData) {
                 link: updatedData.link || null,
                 updatedAt: new Date(),
             },
-        });
+        })
 
-        return updatedPost;
+        return updatedPost
     } catch (error) {
-        throw new Error("Failed to update post: " + error.message);
+        throw new Error("Failed to update post: " + error.message)
     }
 }
 
+// ✅ Delete Post
 export async function deletePost(postId) {
-    const { userId, orgId: currentOrgId } = await auth();
-    if (!userId || !currentOrgId) throw new Error("Unauthorized");
+    const { userId, orgId: currentOrgId } = await auth()
+    if (!userId || !currentOrgId) throw new Error("Unauthorized")
 
     const existingPost = await prisma.orgPost.findUnique({
         where: { id: postId },
-        include: { project: true },
-    });
+    })
 
-    if (!existingPost) throw new Error("Post not found");
+    if (!existingPost) throw new Error("Post not found")
 
-    if (existingPost.project.organizationId !== currentOrgId) {
-        throw new Error("Unauthorized organization access");
+    if (existingPost.orgId !== currentOrgId) {
+        throw new Error("Unauthorized organization access")
     }
 
     if (existingPost.authorId !== userId) {
-        throw new Error("Only the author can delete this post");
+        throw new Error("Only the author can delete this post")
     }
 
     try {
         await prisma.orgPost.delete({
             where: { id: postId },
-        });
+        })
 
-        return { success: true };
+        return { success: true }
     } catch (error) {
-        throw new Error("Failed to delete post: " + error.message);
+        throw new Error("Failed to delete post: " + error.message)
     }
 }

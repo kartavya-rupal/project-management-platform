@@ -1,18 +1,13 @@
-import React from 'react'
+import React from "react";
+import PostCreateButton from "./components/PostCreateButton";
 
-const Page = () => {
-  return <>
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh"
-      }}
-    >
-      <h1>Posts</h1>
+const Page = async ({ params }) => {
+
+  return (
+    <div className="flex justify-center items-center h-screen">
+      <PostCreateButton />
     </div>
-  </>
-}
+  );
+};
 
-export default Page
+export default Page;
