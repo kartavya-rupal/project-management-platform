@@ -39,10 +39,9 @@ export async function createPost(data) {
 
 // ✅ Get Posts for current org
 export async function getPosts(orgId) {
-    const { userId, orgId: currentOrgId } = await auth()
+    const { userId} = await auth()
 
-    if (!userId || !currentOrgId) throw new Error("Unauthorized")
-    if (orgId !== currentOrgId) throw new Error("Invalid organization access")
+    if (!userId) throw new Error("Unauthorized")
 
     const user = await prisma.user.findUnique({
         where: { clerkUserId: userId },
@@ -52,7 +51,7 @@ export async function getPosts(orgId) {
 
     try {
         const posts = await prisma.orgPost.findMany({
-            where: { orgId: currentOrgId },
+            where: { orgId: orgId },
             orderBy: { createdAt: "desc" },
             include: {
                 author: true,

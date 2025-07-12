@@ -12,9 +12,12 @@ import useFetch from "@/hooks/use-fetch"
 import { createPost } from "@/actions/post"
 import MDEditor from "@uiw/react-md-editor"
 import { postSchema } from "@/lib/validators"
+import { useRouter } from "next/navigation"
 
 const PostCreateDrawer = ({ isOpen, onClose}) => {
     const { fn: createPostFn, loading, error, data: newPost } = useFetch(createPost)
+
+    const router = useRouter()
 
     const {
         register,
@@ -45,6 +48,7 @@ const PostCreateDrawer = ({ isOpen, onClose}) => {
     useEffect(() => {
         if (newPost) {
             handleClose()
+            router.refresh()
         }
     }, [newPost])
 
