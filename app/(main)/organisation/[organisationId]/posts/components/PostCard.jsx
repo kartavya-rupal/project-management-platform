@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { formatDistanceToNow } from "date-fns"
 import { MoreHorizontal, Edit, Trash2, ThumbsUp, ThumbsDown, MessageCircle, ExternalLink, Clock } from "lucide-react"
-import MDEditor from "@uiw/react-md-editor"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { deletePost } from "@/actions/post"
+import useFetch from "@/hooks/use-fetch"
 
 const PostCard = ({ post }) => {
     const [upvotes, setUpvotes] = useState(0)
@@ -16,33 +17,11 @@ const PostCard = ({ post }) => {
     const [isUpvoted, setIsUpvoted] = useState(false)
     const [isDownvoted, setIsDownvoted] = useState(false)
 
-    const handleUpvote = () => {
-        if (isUpvoted) {
-            setUpvotes((prev) => prev - 1)
-            setIsUpvoted(false)
-        } else {
-            if (isDownvoted) {
-                setDownvotes((prev) => prev - 1)
-                setIsDownvoted(false)
-            }
-            setUpvotes((prev) => prev + 1)
-            setIsUpvoted(true)
-        }
-    }
+    const { fn: deletePostFn, deleteLoading, deleteError } = useFetch(deletePost)
 
-    const handleDownvote = () => {
-        if (isDownvoted) {
-            setDownvotes((prev) => prev - 1)
-            setIsDownvoted(false)
-        } else {
-            if (isUpvoted) {
-                setUpvotes((prev) => prev - 1)
-                setIsUpvoted(false)
-            }
-            setDownvotes((prev) => prev + 1)
-            setIsDownvoted(true)
-        }
-    }
+    const handleUpvote = () => {}
+
+    const handleDownvote = () => {}
 
     const handleEdit = () => {
         // TODO: Implement edit functionality

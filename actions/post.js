@@ -105,8 +105,9 @@ export async function editPost(postId, updatedData) {
 
 // ✅ Delete Post
 export async function deletePost(postId) {
-    const { userId, orgId: currentOrgId } = await auth()
-    if (!userId || !currentOrgId) throw new Error("Unauthorized")
+    const { userId, orgId, orgRole } = auth()
+
+    if (!userId || !orgId) throw new Error("Unauthorized")
 
     const existingPost = await prisma.orgPost.findUnique({
         where: { id: postId },
@@ -114,12 +115,11 @@ export async function deletePost(postId) {
 
     if (!existingPost) throw new Error("Post not found")
 
-    if (existingPost.orgId !== currentOrgId) {
-        throw new Error("Unauthorized organization access")
-    }
+    const isAuthor = existingPost.authorId === userId
+    const isOrgAdmin = orgRole === "org:admin"
 
-    if (existingPost.authorId !== userId) {
-        throw new Error("Only the author can delete this post")
+    if (!isAuthor && !isOrgAdmin) {
+        throw new Error("Only the post author or org admin can delete this post")
     }
 
     try {
