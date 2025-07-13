@@ -105,8 +105,7 @@ export async function editPost(postId, updatedData) {
 
 // ✅ Delete Post
 export async function deletePost(postId) {
-    const { userId, orgId, orgRole } = auth()
-
+    const { userId, orgId, orgRole } = await auth()
     if (!userId || !orgId) throw new Error("Unauthorized")
 
     const existingPost = await prisma.orgPost.findUnique({

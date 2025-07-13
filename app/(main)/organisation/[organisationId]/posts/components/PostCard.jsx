@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -9,6 +9,8 @@ import { MoreHorizontal, Edit, Trash2, ThumbsUp, ThumbsDown, MessageCircle, Exte
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { deletePost } from "@/actions/post"
 import useFetch from "@/hooks/use-fetch"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 const PostCard = ({ post }) => {
     const [upvotes, setUpvotes] = useState(0)
@@ -17,26 +19,51 @@ const PostCard = ({ post }) => {
     const [isUpvoted, setIsUpvoted] = useState(false)
     const [isDownvoted, setIsDownvoted] = useState(false)
 
-    const { fn: deletePostFn, deleteLoading, deleteError } = useFetch(deletePost)
+    const router = useRouter()
 
-    const handleUpvote = () => {}
+    const handleUpvote = () => { }
 
-    const handleDownvote = () => {}
+    const handleDownvote = () => { }
 
-    const handleEdit = () => {
-        // TODO: Implement edit functionality
-        console.log("Edit post:", post.id)
+    const handleEdit = () => { }
+
+    const {
+        fn: deletePostFn,
+        data: deletedPost,
+        error: deleteError,
+        loading: deleteLoading,
+    } = useFetch(deletePost)
+
+    const handleDelete = async () => {
+        toast("Deleting post...", {
+            description: "Please wait while we delete the post.",
+            duration: 3000,
+        })
+
+        try {
+            await deletePostFn(post.id)
+        } catch (err) {
+        }
     }
 
-    const handleDelete = () => {
-        // TODO: Implement delete functionality
-        console.log("Delete post:", post.id)
-    }
+    useEffect(() => {
+        if (deletedPost) {
+            toast.success("Post deleted", {
+                description: "The post was deleted successfully.",
+            })
+            router.refresh()
+        }
+    }, [deletedPost, router])
 
-    const handleComment = () => {
-        // TODO: Implement comment functionality
-        console.log(post.author)
-    }
+    useEffect(() => {
+        if (deleteError) {
+            toast.error("Error deleting post", {
+                description: deleteError.message || "Something went wrong.",
+            })
+        }
+    }, [deleteError])
+
+    const handleComment = () => { }
 
 
 
