@@ -68,18 +68,14 @@ export async function getPosts(orgId) {
 
 // ✅ Edit Post
 export async function editPost(postId, updatedData) {
-    const { userId, orgId: currentOrgId } = await auth()
-    if (!userId || !currentOrgId) throw new Error("Unauthorized")
+    const { userId, orgId } = await auth()
+    if (!userId || !orgId) throw new Error("Unauthorized")
 
     const existingPost = await prisma.orgPost.findUnique({
         where: { id: postId },
     })
 
     if (!existingPost) throw new Error("Post not found")
-
-    if (existingPost.orgId !== currentOrgId) {
-        throw new Error("Unauthorized organization access")
-    }
 
     if (existingPost.authorId !== user.id) {
         throw new Error("Only the author can edit this post")

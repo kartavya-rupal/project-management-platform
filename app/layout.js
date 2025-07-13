@@ -12,7 +12,7 @@ import { ThemeProvider } from "@/components/themeProvider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: 'WorkLy - Manage Projects Effortlessly',
+  title: 'WorkLy',
   description: 'Create, track, and manage your teams, sprints, and issues with WorkLy.',
   icons: {
     icon: '/faviconNew.ico',
