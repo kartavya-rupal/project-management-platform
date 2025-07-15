@@ -73,6 +73,20 @@ const PostEditDrawer = ({ post, onClose }) => {
         }
     }, [editedPost])
 
+    useEffect(() => {
+        const originalOverflow = document.body.style.overflow;
+
+        if (post) {
+            document.body.style.overflow = "hidden";
+        }
+
+        return () => {
+            document.body.style.overflow = originalOverflow;
+        };
+    }, [post]);
+
+
+
     return (
         <Drawer open={!!post} onClose={handleClose}>
             <DrawerContent className="max-h-[90vh] border border-primary/10 bg-background/95 backdrop-blur-md">
