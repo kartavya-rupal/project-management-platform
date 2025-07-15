@@ -11,6 +11,7 @@ import { deletePost } from "@/actions/post"
 import useFetch from "@/hooks/use-fetch"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import PostEditDrawer from "./PostEditDrawer"
 
 const PostCard = ({ post }) => {
     const [upvotes, setUpvotes] = useState(0)
@@ -18,6 +19,7 @@ const PostCard = ({ post }) => {
     const [comments, setComments] = useState(0)
     const [isUpvoted, setIsUpvoted] = useState(false)
     const [isDownvoted, setIsDownvoted] = useState(false)
+    const [editingPost, setEditingPost] = useState(null);
 
     const router = useRouter()
 
@@ -25,7 +27,9 @@ const PostCard = ({ post }) => {
 
     const handleDownvote = () => { }
 
-    const handleEdit = () => { }
+    const handleEdit = () => {
+        setEditingPost(post); // Pass current post to the drawer
+    };
 
     const {
         fn: deletePostFn,
@@ -67,7 +71,7 @@ const PostCard = ({ post }) => {
 
 
 
-    return (
+    return <>
         <Card className="relative overflow-hidden border border-primary/10 bg-background/60 backdrop-blur-md transition-all duration-300 hover:shadow-md hover:shadow-primary/10">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
@@ -198,7 +202,17 @@ const PostCard = ({ post }) => {
                 </div>
             </CardContent>
         </Card>
-    )
+
+        {
+            editingPost && (
+                <PostEditDrawer
+                    post={editingPost}
+                    onClose={() => setEditingPost(null)}
+                />
+            )
+        }
+    </>
+
 }
 
 export default PostCard
