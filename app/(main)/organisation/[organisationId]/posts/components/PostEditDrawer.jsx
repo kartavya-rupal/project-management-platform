@@ -12,10 +12,8 @@ import useFetch from "@/hooks/use-fetch"
 import { editPost } from "@/actions/post"
 import MDEditor from "@uiw/react-md-editor"
 import { postSchema } from "@/lib/validators"
-import { useRouter } from "next/navigation"
 
 const PostEditDrawer = ({ post, onClose }) => {
-    const router = useRouter()
 
     const {
         fn: editPostFn,
@@ -39,6 +37,8 @@ const PostEditDrawer = ({ post, onClose }) => {
             link: post?.link || "",
         },
     })
+
+    // if (!post) return null;
 
     // Reinitialize form when post changes
     useEffect(() => {
@@ -69,7 +69,7 @@ const PostEditDrawer = ({ post, onClose }) => {
     useEffect(() => {
         if (editedPost) {
             handleClose()
-            router.refresh()
+            window.location.reload()
         }
     }, [editedPost])
 

@@ -203,14 +203,13 @@ const PostCard = ({ post }) => {
             </CardContent>
         </Card>
 
-        {
-            editingPost && (
-                <PostEditDrawer
-                    post={editingPost}
-                    onClose={() => setEditingPost(null)}
-                />
-            )
-        }
+        {editingPost ? (
+            <PostEditDrawer
+                post={editingPost}
+                onClose={() => setEditingPost(null)}
+            />
+        ) : null}
+
     </>
 
 }

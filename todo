@@ -8,6 +8,7 @@ kanban board issues while dnd (fixed)
 change title and favicon (fixed)
 implement activity log feature (fixed)
 ui fixes for activity log (fixed)
-implement community-forum like feature
+implement community-forum like feature (fixed)
 project card ui issue (fixed)
 sorting filters for activitylogs
+after closing the update drawer, the whole page isnt clickable
