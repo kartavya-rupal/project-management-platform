@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { formatDistanceToNow } from "date-fns"
 import { MoreHorizontal, Edit, Trash2, ThumbsUp, ThumbsDown, MessageCircle, ExternalLink, Clock } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { deletePost } from "@/actions/post"
+import { deletePost, votePost } from "@/actions/post"
 import useFetch from "@/hooks/use-fetch"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -22,6 +22,13 @@ const PostCard = ({ post }) => {
     const [editingPost, setEditingPost] = useState(null);
 
     const router = useRouter()
+
+    const {
+        fn: votePostFn,
+        data: votedPost,
+        error: voteError,
+        loading: voteLoading,
+    } = useFetch(votePost)
 
     const handleUpvote = () => { }
 

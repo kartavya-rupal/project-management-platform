@@ -133,3 +133,70 @@ export async function deletePost(postId) {
         throw new Error("Failed to delete post: " + error.message)
     }
 }
+
+// ✅ Upvote / Downvote Post
+export async function votePost({ postId, value }) {
+    const { userId } = await auth()
+
+    if (!userId) throw new Error("Unauthorized")
+
+    const user = await prisma.user.findUnique({
+        where: { clerkUserId: userId },
+    })
+
+    if (!user) throw new Error("User not found")
+
+    if (![1, -1].includes(value)) {
+        throw new Error("Invalid vote value. Must be 1 or -1")
+    }
+
+    try {
+        const existingVote = await prisma.postVote.findUnique({
+            where: {
+                postId_userId: {
+                    postId,
+                    userId: user.id,
+                },
+            },
+        })
+
+        if (!existingVote) {
+            // 🔼 No vote yet → create one
+            await prisma.postVote.create({
+                data: {
+                    postId,
+                    userId: user.id,
+                    value,
+                },
+            })
+        } else if (existingVote.value === value) {
+            // ⚠️ Same vote exists → toggle it (remove)
+            await prisma.postVote.delete({
+                where: {
+                    postId_userId: {
+                        postId,
+                        userId: user.id,
+                    },
+                },
+            })
+        } else {
+            // 🔁 Opposite vote exists → update it
+            await prisma.postVote.update({
+                where: {
+                    postId_userId: {
+                        postId,
+                        userId: user.id,
+                    },
+                },
+                data: {
+                    value,
+                },
+            })
+        }
+
+        return { success: true }
+    } catch (error) {
+        throw new Error("Failed to vote on post: " + error.message)
+    }
+}
+
