@@ -12,8 +12,11 @@ import useFetch from "@/hooks/use-fetch"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import PostEditDrawer from "./PostEditDrawer"
+import { useUser } from "@clerk/nextjs"
+
 
 const PostCard = ({ post }) => {
+
     const [upvotes, setUpvotes] = useState(0)
     const [downvotes, setDownvotes] = useState(0)
     const [comments, setComments] = useState(0)
@@ -23,6 +26,10 @@ const PostCard = ({ post }) => {
 
     const router = useRouter()
 
+    const { user } = useUser();
+    const currentUserId = user?.id;
+    console.log(currentUserId);
+
     const {
         fn: votePostFn,
         data: votedPost,
@@ -30,9 +37,69 @@ const PostCard = ({ post }) => {
         loading: voteLoading,
     } = useFetch(votePost)
 
-    const handleUpvote = () => { }
+    useEffect(() => {
+        const up = post.votes.filter(v => v.value === 1).length;
+        const down = post.votes.filter(v => v.value === -1).length;
+        const userVote = post.votes.find(v => v.user?.clerkUserId === currentUserId);
+        console.log(up, down, userVote);
+        console.log(post);
 
-    const handleDownvote = () => { }
+        setUpvotes(up);
+        setDownvotes(down);
+
+        if (userVote?.value === 1) setIsUpvoted(true);
+        if (userVote?.value === -1) setIsDownvoted(true);
+    }, [post.votes, post.currentUserId]);
+
+
+    const handleUpvote = async () => {
+        if (voteLoading) return;
+
+        const togglingOff = isUpvoted;
+
+        try {
+            await votePostFn({ postId: post.id, value: 1 });
+
+            if (togglingOff) {
+                setIsUpvoted(false);
+                setUpvotes(prev => prev - 1);
+            } else {
+                setIsUpvoted(true);
+                setUpvotes(prev => prev + 1);
+                if (isDownvoted) {
+                    setIsDownvoted(false);
+                    setDownvotes(prev => prev - 1);
+                }
+            }
+        } catch (error) {
+            toast.error("Failed to upvote");
+        }
+    };
+
+
+    const handleDownvote = async () => {
+        if (voteLoading) return;
+
+        const togglingOff = isDownvoted;
+
+        try {
+            await votePostFn({ postId: post.id, value: -1 });
+
+            if (togglingOff) {
+                setIsDownvoted(false);
+                setDownvotes(prev => prev - 1);
+            } else {
+                setIsDownvoted(true);
+                setDownvotes(prev => prev + 1);
+                if (isUpvoted) {
+                    setIsUpvoted(false);
+                    setUpvotes(prev => prev - 1);
+                }
+            }
+        } catch (error) {
+            toast.error("Failed to downvote");
+        }
+    };
 
     const handleEdit = () => {
         setEditingPost(post); // Pass current post to the drawer

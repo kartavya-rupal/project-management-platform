@@ -11,4 +11,5 @@ ui fixes for activity log (fixed)
 implement community-forum like feature (fixed)
 project card ui issue (fixed)
 sorting filters for activitylogs
-after closing the update drawer, the whole page isnt clickable
+after closing the update drawer, the whole page isnt clickable (fixed)
+voting issue regarding multiple votes from same user
