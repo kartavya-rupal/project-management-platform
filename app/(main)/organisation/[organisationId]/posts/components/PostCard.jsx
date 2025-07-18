@@ -9,26 +9,24 @@ import { MoreHorizontal, Edit, Trash2, ThumbsUp, ThumbsDown, MessageCircle, Exte
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { deletePost, votePost } from "@/actions/post"
 import useFetch from "@/hooks/use-fetch"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { toast } from "sonner"
 import PostEditDrawer from "./PostEditDrawer"
 import { useUser } from "@clerk/nextjs"
 
-
 const PostCard = ({ post }) => {
-
     const [upvotes, setUpvotes] = useState(0)
     const [downvotes, setDownvotes] = useState(0)
     const [comments, setComments] = useState(0)
     const [isUpvoted, setIsUpvoted] = useState(false)
     const [isDownvoted, setIsDownvoted] = useState(false)
-    const [editingPost, setEditingPost] = useState(null);
+    const [editingPost, setEditingPost] = useState(null)
 
-    const router = useRouter()
+    const params = useParams()
 
-    const { user } = useUser();
-    const currentUserId = user?.id;
-    console.log(currentUserId);
+    const router = useRouter();
+    const { user } = useUser()
+    const currentUserId = user?.id
 
     const {
         fn: votePostFn,
@@ -38,81 +36,75 @@ const PostCard = ({ post }) => {
     } = useFetch(votePost)
 
     useEffect(() => {
-        const up = post.votes.filter(v => v.value === 1).length;
-        const down = post.votes.filter(v => v.value === -1).length;
-        const userVote = post.votes.find(v => v.user?.clerkUserId === currentUserId);
-        console.log(up, down, userVote);
-        console.log(post);
+        const up = post.votes.filter(v => v.value === 1).length
+        const down = post.votes.filter(v => v.value === -1).length
+        const userVote = post.votes.find(v => v.user?.clerkUserId === currentUserId)
 
-        setUpvotes(up);
-        setDownvotes(down);
+        setUpvotes(up)
+        setDownvotes(down)
 
-        if (userVote?.value === 1) setIsUpvoted(true);
-        if (userVote?.value === -1) setIsDownvoted(true);
-    }, [post.votes, post.currentUserId]);
+        setIsUpvoted(userVote?.value === 1)
+        setIsDownvoted(userVote?.value === -1)
+    }, [post.votes, currentUserId])
 
+    const handleUpvote = async (e) => {
+        e.stopPropagation()
+        if (voteLoading) return
 
-    const handleUpvote = async () => {
-        if (voteLoading) return;
-
-        const togglingOff = isUpvoted;
+        const togglingOff = isUpvoted
 
         try {
-            await votePostFn({ postId: post.id, value: 1 });
+            await votePostFn({ postId: post.id, value: 1 })
 
             if (togglingOff) {
-                setIsUpvoted(false);
-                setUpvotes(prev => prev - 1);
+                setIsUpvoted(false)
+                setUpvotes(prev => prev - 1)
             } else {
-                setIsUpvoted(true);
-                setUpvotes(prev => prev + 1);
+                setIsUpvoted(true)
+                setUpvotes(prev => prev + 1)
                 if (isDownvoted) {
-                    setIsDownvoted(false);
-                    setDownvotes(prev => prev - 1);
+                    setIsDownvoted(false)
+                    setDownvotes(prev => prev - 1)
                 }
             }
-        } catch (error) {
-            toast.error("Failed to upvote");
+        } catch {
+            toast.error("Failed to upvote")
         }
-    };
+    }
 
+    const handleDownvote = async (e) => {
+        e.stopPropagation()
+        if (voteLoading) return
 
-    const handleDownvote = async () => {
-        if (voteLoading) return;
-
-        const togglingOff = isDownvoted;
+        const togglingOff = isDownvoted
 
         try {
-            await votePostFn({ postId: post.id, value: -1 });
+            await votePostFn({ postId: post.id, value: -1 })
 
             if (togglingOff) {
-                setIsDownvoted(false);
-                setDownvotes(prev => prev - 1);
+                setIsDownvoted(false)
+                setDownvotes(prev => prev - 1)
             } else {
-                setIsDownvoted(true);
-                setDownvotes(prev => prev + 1);
+                setIsDownvoted(true)
+                setDownvotes(prev => prev + 1)
                 if (isUpvoted) {
-                    setIsUpvoted(false);
-                    setUpvotes(prev => prev - 1);
+                    setIsUpvoted(false)
+                    setUpvotes(prev => prev - 1)
                 }
             }
-        } catch (error) {
-            toast.error("Failed to downvote");
+        } catch {
+            toast.error("Failed to downvote")
         }
-    };
-
-    const handleEdit = () => {
-        setEditingPost(post); // Pass current post to the drawer
-    };
+    }
 
     const {
         fn: deletePostFn,
         data: deletedPost,
         error: deleteError,
-        loading: deleteLoading,
     } = useFetch(deletePost)
 
-    const handleDelete = async () => {
+    const handleDelete = async (e) => {
+        e.stopPropagation()
         toast("Deleting post...", {
             description: "Please wait while we delete the post.",
             duration: 3000,
@@ -120,8 +112,7 @@ const PostCard = ({ post }) => {
 
         try {
             await deletePostFn(post.id)
-        } catch (err) {
-        }
+        } catch { }
     }
 
     useEffect(() => {
@@ -141,17 +132,29 @@ const PostCard = ({ post }) => {
         }
     }, [deleteError])
 
-    const handleComment = () => { }
+    const handleCardClick = () => {
+        router.push(`/organisation/${params.organisationId}/posts/${post.id}`);
+    };
 
+    const handleEdit = (e) => {
+        e.stopPropagation()
+        setEditingPost(post)
+    }
 
+    const handleComment = (e) => {
+        e.stopPropagation()
+        // You can open a comment drawer/modal here
+    }
 
     return <>
-        <Card className="relative overflow-hidden border border-primary/10 bg-background/60 backdrop-blur-md transition-all duration-300 hover:shadow-md hover:shadow-primary/10">
+        <Card
+            onClick={handleCardClick}
+            className="relative overflow-hidden border border-primary/10 bg-background/60 backdrop-blur-md transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 cursor-pointer"
+        >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
             <CardHeader className="relative z-10 pb-3 mb-[-15px]">
                 <div className="flex items-center justify-between">
-
                     <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">
                             <AvatarImage src={post.author?.imageUrl} alt={post.author?.name} />
@@ -171,27 +174,25 @@ const PostCard = ({ post }) => {
                         </div>
                     </div>
 
-
-
-                    {/* Right: Dropdown Menu */}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
                                 size="sm"
                                 className="h-8 w-8 p-0 hover:bg-primary/10 rounded-full"
+                                onClick={(e) => e.stopPropagation()}
                             >
                                 <MoreHorizontal className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-40">
-                            <DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
+                            <DropdownMenuItem onClick={handleEdit}>
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit Post
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 onClick={handleDelete}
-                                className="cursor-pointer text-red-600 hover:text-red-700"
+                                className="text-red-600 hover:text-red-700"
                             >
                                 <Trash2 className="h-4 w-4 mr-2" />
                                 Delete Post
@@ -201,20 +202,15 @@ const PostCard = ({ post }) => {
                 </div>
             </CardHeader>
 
-
             <CardContent className="relative z-10 space-y-4">
-                {/* Title */}
                 <h2 className="text-xl font-semibold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
                     {post.title}
                 </h2>
 
-                {/* Content */}
                 <div className="text-sm text-muted-foreground line-clamp-4">
                     {post.content}
                 </div>
 
-
-                {/* Image */}
                 {post.image && (
                     <div className="rounded-lg overflow-hidden border border-primary/10">
                         <img
@@ -225,7 +221,6 @@ const PostCard = ({ post }) => {
                     </div>
                 )}
 
-                {/* External Link */}
                 {post.link && (
                     <div className="p-3 rounded-lg bg-primary/5 border border-primary/10">
                         <a
@@ -233,6 +228,7 @@ const PostCard = ({ post }) => {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
+                            onClick={(e) => e.stopPropagation()}
                         >
                             <ExternalLink className="h-4 w-4" />
                             <span className="truncate">{post.link}</span>
@@ -240,14 +236,12 @@ const PostCard = ({ post }) => {
                     </div>
                 )}
 
-                {/* Actions */}
                 <div className="flex items-center gap-4 pt-2 border-t border-primary/10">
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={handleUpvote}
-                        className={`flex items-center gap-2 hover:bg-green-500/10 ${isUpvoted ? "text-green-600 bg-green-500/10" : "text-muted-foreground"
-                            }`}
+                        className={`flex items-center gap-2 hover:bg-green-500/10 ${isUpvoted ? "text-green-600 bg-green-500/10" : "text-muted-foreground"}`}
                     >
                         <ThumbsUp className="h-4 w-4" />
                         <span className="text-sm">{upvotes}</span>
@@ -257,8 +251,7 @@ const PostCard = ({ post }) => {
                         variant="ghost"
                         size="sm"
                         onClick={handleDownvote}
-                        className={`flex items-center gap-2 hover:bg-red-500/10 ${isDownvoted ? "text-red-600 bg-red-500/10" : "text-muted-foreground"
-                            }`}
+                        className={`flex items-center gap-2 hover:bg-red-500/10 ${isDownvoted ? "text-red-600 bg-red-500/10" : "text-muted-foreground"}`}
                     >
                         <ThumbsDown className="h-4 w-4" />
                         <span className="text-sm">{downvotes}</span>
@@ -277,15 +270,13 @@ const PostCard = ({ post }) => {
             </CardContent>
         </Card>
 
-        {editingPost ? (
+        {editingPost && (
             <PostEditDrawer
                 post={editingPost}
                 onClose={() => setEditingPost(null)}
             />
-        ) : null}
-
+        )}
     </>
-
 }
 
 export default PostCard
