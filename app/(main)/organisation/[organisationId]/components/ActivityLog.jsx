@@ -100,7 +100,7 @@ const ActivityLog = () => {
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none rounded-lg"></div>
 
                     <DialogHeader className="relative z-10 border-b border-primary/10 p-6 pb-4">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-start justify-between">
                             <div className="p-2 rounded-full bg-primary/10">
                                 <Activity className="h-5 w-5 text-primary" />
                             </div>

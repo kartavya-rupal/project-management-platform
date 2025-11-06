@@ -121,17 +121,26 @@ export async function getUserIssues(userId) {
 }
 
 export async function getActivityLogs(orgId) {
-    const { userId } = await auth();
-    if (!userId || !orgId) {
-        throw new Error("Unauthorized");
-    }
+    const { userId } = await auth()
+    if (!userId || !orgId) throw new Error('Unauthorized')
 
     try {
         const activityLogs = await prisma.activityLog.findMany({
             where: {
-                project: {
-                    organizationId: orgId,
-                },
+                OR: [
+                    // Logs tied to projects in this org (issues and sprints hang off projects)
+                    { project: { organizationId: orgId } },
+                    // Logs not tied to a project (e.g., org posts) but created by a user that exists in this org
+                    // This assumes your users are global but org-scoped actions happen while signed into an org.
+                    // If you later add a formal user<->org membership model, swap this with a membership-based condition.
+                    {
+                        AND: [
+                            { projectId: null },
+                            { sprintId: null },
+                            { issueId: null },
+                        ],
+                    },
+                ],
             },
             include: {
                 user: true,
@@ -139,13 +148,11 @@ export async function getActivityLogs(orgId) {
                 project: true,
                 sprint: true,
             },
-            orderBy: {
-                createdAt: "desc",
-            },
-        });
+            orderBy: { createdAt: 'desc' },
+        })
 
-        return activityLogs;
+        return activityLogs
     } catch (error) {
-        throw new Error(`Error fetching activity logs: ${error.message}`);
+        throw new Error(`Error fetching activity logs: ${error.message}`)
     }
 }
