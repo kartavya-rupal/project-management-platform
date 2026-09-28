@@ -4,7 +4,7 @@ import OrgSwitcher from "@/components/Org-switcher"
 import ProjectList from "./components/ProjectList"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Users, Calendar, Crown, Building2, FolderOpen, CheckCircle } from "lucide-react"
+import { Users, Calendar, Crown, Building2, FolderOpen, CheckCircle, Clock } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { auth } from "@clerk/nextjs/server"
 import { getProjects } from "@/actions/project"
@@ -45,7 +45,18 @@ export default async function Organisation({ params }) {
                 <Building2 className="h-5 w-5 text-primary" />
                 Organization Overview
               </CardTitle>
-              <ActivityLog />
+              <div className="flex items-center gap-2">
+                <Link href={`/organisation/${organisationId}/attendance`}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex cursor-pointer items-center gap-2 hover:bg-primary/10 text-primary transition-all duration-300 hover:shadow-md hover:shadow-primary/20"
+                  >
+                    <Clock className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <ActivityLog />
+              </div>
             </div>
           </CardHeader>
 

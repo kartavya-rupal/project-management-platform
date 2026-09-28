@@ -13,3 +13,7 @@ project card ui issue (fixed)
 sorting filters for activitylogs
 after closing the update drawer, the whole page isnt clickable 
 voting issue regarding multiple votes from same user
+x device secret from attendance/route.js
+add esp32 env to vercel
+wire rc522 to esp32 
+set variable values in arduino ide

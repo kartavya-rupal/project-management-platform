@@ -13,9 +13,11 @@ model User {
   email          String        @unique
   name           String?
   imageUrl       String?
+  rfidTag        String?       @unique
   createdIssues  Issue[]       @relation("Reporter")
   assignedIssues Issue[]       @relation("Assignee")
   activityLogs   ActivityLog[]
+  attendance     Attendance[] 
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
@@ -90,6 +92,25 @@ model ActivityLog {
   sprintId  String?
   createdAt DateTime     @default(now())
 }
+
+model Attendance {
+  id             String     @id @default(cuid())
+  userId         String
+  organisationId String
+  rfidTag        String
+  status         AttendanceStatus  @default(CHECK_IN)
+  timestamp      DateTime   @default(now())
+
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([organisationId, userId, timestamp])
+}
+
+enum AttendanceStatus {
+  CHECK_IN
+  CHECK_OUT
+}
+
 
 model OrgPost {
   id        String        @id @default(cuid())
