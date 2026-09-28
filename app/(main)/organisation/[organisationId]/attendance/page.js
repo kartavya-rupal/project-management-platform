@@ -85,7 +85,7 @@ export default async function AttendancePage({ params }) {
                                 <BarChart3 className="h-6 w-6 text-blue-600" />
                             </div>
                             <div>
-                                <p className="text-sm text-muted-foreground">Today's Check-ins</p>
+                                <p className="text-sm text-muted-foreground">Today&apos;s Check-ins</p>
                                 <p className="text-2xl font-bold text-blue-600">{todayAttendance}</p>
                             </div>
                         </div>
